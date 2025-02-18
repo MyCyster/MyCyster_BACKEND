@@ -7,6 +7,7 @@ import { setupSwagger } from './swagger.config';
 dotenv.config();
 
 async function bootstrap() {
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
   const app = await NestFactory.create(AppModule);
 
   app.enableVersioning({
