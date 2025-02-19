@@ -54,7 +54,7 @@ export class AuthService {
       email_verification_code: email_verification_code,
     });
 
-    // await this.sendVerificationEmail(user, email_verification_code);
+    await this.sendVerificationEmail(user, email_verification_code);
 
     const userDetails = await this.userRepository.findOne({
       where: { id: user.id },
@@ -152,14 +152,14 @@ export class AuthService {
     const isPasswordMatching = bcrypt.compare(password, hashedPassword);
     return isPasswordMatching;
   }
-  // async sendVerificationEmail(user, code) {
-  //   const subject = 'Verification Code';
+  async sendVerificationEmail(user, code) {
+    const subject = 'Verification Code';
 
-  //   const name = user.name;
+    const name = user.name;
 
-  //   await this.emailService.sendEmail(user.email, subject, {
-  //     templateName: 'email-verification',
-  //     context: { name, code },
-  //   });
-  // }
+    await this.emailService.sendEmail(user.email, subject, {
+      templateName: 'email-verification',
+      context: { name, code },
+    });
+  }
 }
