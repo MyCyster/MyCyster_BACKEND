@@ -14,9 +14,10 @@ export class EmailService {
   constructor(private configService: ConfigService) {
     // Initialize transporter using Gmail SMTP settings
     this.transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST || '',
-      secure: true,
-      port: Number(process.env.SMTP_PORT) || 465,
+      service: 'gmail',
+      // host: process.env.SMTP_HOST || '',
+      // secure: true,
+      // port: Number(process.env.SMTP_PORT) || 465,
       auth: {
         user: process.env.SMTP_USERNAME,
         pass: process.env.SMTP_PASSWORD,
@@ -49,7 +50,7 @@ export class EmailService {
 
   templateToHtml(templateName, context) {
     const templatePath = resolve(
-      process.cwd(),
+      __dirname,
       'templates',
       `${templateName}.html`,
     );

@@ -18,5 +18,6 @@
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false
   },
-  "include": ["src/**/*", "typeorm-cli-config.ts"]
+  "include": ["src/**/*", "typeorm-cli-config.ts", "templates/**/*"]
+  
 }

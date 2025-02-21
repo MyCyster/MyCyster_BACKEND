@@ -3,6 +3,7 @@ import {
   ConflictException,
   Injectable,
   Logger,
+  NotFoundException,
 } from '@nestjs/common';
 import { SignUpDto } from './dto/signup.dto';
 import * as bcrypt from 'bcrypt';
@@ -14,6 +15,7 @@ import { VerifyEmailDto } from './dto/verify-email.dto';
 import { LoginDto } from './dto/login.dto';
 import { jwtConstant } from './constants';
 import { JwtService } from '@nestjs/jwt';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -131,6 +133,77 @@ export class AuthService {
     };
   }
 
+  async forgotPassword(resetPasswordDto: ResetPasswordDto) {
+    const user = await this.userRepository.findOne({
+      where: { email: resetPasswordDto.email },
+    });
+    if (!user) {
+      throw new NotFoundException('User not Found');
+    }
+
+    const token = await this.generatePasswordResetToken();
+    const expirationTime = new Date(Date.now() + 3600000);
+
+    console.log('expiration', expirationTime);
+    await this.userRepository.update(user.id, {
+      reset_password_token: token,
+    });
+    await this.userRepository.update(user.id, {
+      reset_password_expiration: expirationTime,
+    });
+
+    await this.sendPasswordResetEmail(user, token);
+
+    const userDetails = await this.userRepository.findOne({
+      where: { id: user.id },
+    });
+
+    return {
+      message: 'Password reset link sent to your email',
+      reset_password_token: `${userDetails.reset_password_token}`,
+      url: `${process.env.BASE_URL}/auth/reset-password/${token}`,
+    };
+  }
+
+  async resetPassword(resetPasswordDto: ResetPasswordDto) {
+    if (!resetPasswordDto.password) {
+      throw new BadRequestException('Please input your new password');
+    }
+
+    const user = await this.userRepository.findOne({
+      where: { reset_password_token: resetPasswordDto.reset_password_token },
+    });
+
+    if (user && user.reset_password_expiration) {
+      const currentTime = new Date();
+      if (currentTime > user.reset_password_expiration) {
+        throw new BadRequestException('Invalid or expired token');
+      }
+    }
+
+    const newPassword = await this.hashData(resetPasswordDto.password);
+
+    user.password = newPassword;
+
+    user.reset_password_token = null;
+
+    user.reset_password_expiration = null;
+
+    await this.userRepository.update(user.id, { password: newPassword });
+
+    await this.userRepository.update(user.id, { reset_password_token: null });
+
+    await this.userRepository.update(user.id, {
+      reset_password_expiration: null,
+    });
+
+    return {
+      message: 'Password has been changed successfully',
+      ...user,
+      password: undefined,
+    };
+  }
+
   async getToken(userId: string, email: string) {
     const token = await this.jwtService.signAsync(
       {
@@ -161,5 +234,21 @@ export class AuthService {
       templateName: 'email-verification',
       context: { name, code },
     });
+  }
+
+  async sendPasswordResetEmail(user, token) {
+    const subject = 'Password Reset';
+    const name = user.name;
+    const url = `${process.env.BASEURL}/auth/reset-password/${token}`;
+
+    await this.emailService.sendEmail(user.email, subject, {
+      templateName: 'reset-password',
+      context: { name, url },
+    });
+  }
+
+  async generatePasswordResetToken() {
+    const token = (Math.floor(Math.random() * 9000000) + 1000000).toString();
+    return token;
   }
 }
