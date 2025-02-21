@@ -58,7 +58,7 @@ export class CreateUsersTable1739650415583 implements MigrationInterface {
           },
           {
             name: 'reset_password_expiration',
-            type: 'date',
+            type: 'timestamp',
             isNullable: true, // Added isNullable since this might not be set initially
           },
           {
