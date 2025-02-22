@@ -112,6 +112,7 @@ export class AuthController {
     try {
       return this.authService.forgotPassword(resetPasswordDto);
     } catch (error) {
+      console.log('error', error)
       this.logger.error(error.message);
       if (error instanceof BadRequestException) {
         throw new HttpException(
