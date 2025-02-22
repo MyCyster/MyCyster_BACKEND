@@ -142,25 +142,21 @@ export class AuthService {
     }
 
     const token = await this.generatePasswordResetToken();
-    const expirationTime = new Date(Date.now() + 3600000);
 
-    console.log('expiration', expirationTime);
+    // Set expiration to 30 minutes from now
+    const expirationTime = new Date();
+    expirationTime.setMinutes(expirationTime.getMinutes() + 30);
+
     await this.userRepository.update(user.id, {
       reset_password_token: token,
-    });
-    await this.userRepository.update(user.id, {
       reset_password_expiration: expirationTime,
     });
 
     await this.sendPasswordResetEmail(user, token);
 
-    const userDetails = await this.userRepository.findOne({
-      where: { id: user.id },
-    });
-
     return {
       message: 'Password reset link sent to your email',
-      reset_password_token: `${userDetails.reset_password_token}`,
+      reset_password_token: token,
       url: `${process.env.BASE_URL}/auth/reset-password/${token}`,
     };
   }
@@ -174,36 +170,32 @@ export class AuthService {
       where: { reset_password_token: resetPasswordDto.reset_password_token },
     });
 
-    if (user && user.reset_password_expiration) {
+    if (!user) {
+      throw new NotFoundException('Invalid token');
+    }
+
+    if (user.reset_password_expiration) {
       const currentTime = new Date();
-      if (currentTime > user.reset_password_expiration) {
-        throw new BadRequestException('Invalid or expired token');
+      const expirationTime = new Date(user.reset_password_expiration);
+
+      if (currentTime > expirationTime) {
+        throw new BadRequestException('Token has expired');
       }
     }
 
     const newPassword = await this.hashData(resetPasswordDto.password);
 
-    user.password = newPassword;
-
-    user.reset_password_token = null;
-
-    user.reset_password_expiration = null;
-
-    await this.userRepository.update(user.id, { password: newPassword });
-
-    await this.userRepository.update(user.id, { reset_password_token: null });
-
     await this.userRepository.update(user.id, {
+      password: newPassword,
+      reset_password_token: null,
       reset_password_expiration: null,
     });
 
     return {
       message: 'Password has been changed successfully',
-      ...user,
-      password: undefined,
+      email: user.email,
     };
   }
-
   async getToken(userId: string, email: string) {
     const token = await this.jwtService.signAsync(
       {
