@@ -6,16 +6,16 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { Users } from 'src/user/entities/user.entity';
-import { MoodValue } from 'src/enums/mood.enum';
+import { Users } from '../../user/entities/user.entity';
+import { MoodValue } from '../../enums/mood.enum';
 
 @Entity()
 export class Mood {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ name: 'mood', type: 'enum', enum: MoodValue })
-  mood: string;
+  @Column({ name: 'mood', type: 'enum', enum: MoodValue, enumName: 'mood_enum' })
+  mood: MoodValue;
 
   @Column({ name: 'description', type: 'text', nullable: true })
   description: string;

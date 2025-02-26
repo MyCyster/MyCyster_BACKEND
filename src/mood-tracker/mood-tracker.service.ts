@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Injectable,
   Logger,
   NotFoundException,
@@ -19,8 +20,12 @@ export class MoodTrackerService {
 
   async logMood(data: LogMoodDto, userId: string) {
     const { mood, description } = data;
+    if (!Object.values(MoodValue).includes(mood)) {
+      this.logger.error(`${mood} is not a valid mood value`);
+      throw new BadRequestException(`${mood} is not a valid mood value`);
+    }
     const newMood = this.moodRepository.create({
-      mood: mood.toLowerCase(),
+      mood: mood,
       description,
       user: { id: userId },
     });
@@ -49,7 +54,9 @@ export class MoodTrackerService {
     }
 
     if (startDate) {
-      queryBuilder.andWhere('mood.created_at >= :newStartDate', { newStartDate });
+      queryBuilder.andWhere('mood.created_at >= :newStartDate', {
+        newStartDate,
+      });
     }
 
     if (endDate) {
