@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import appConfig from './config/app.config';
 import * as dotenv from 'dotenv';
+import { MoodTrackerModule } from './mood-tracker/mood-tracker.module';
 
 dotenv.config();
 
@@ -32,6 +33,7 @@ dotenv.config();
     }),
     AuthModule,
     UserModule,
+    MoodTrackerModule,
   ],
   controllers: [AppController],
   providers: [AppService],

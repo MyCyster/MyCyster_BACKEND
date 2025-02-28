@@ -8,6 +8,8 @@ import { Repository } from 'typeorm';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './jwt.strategy';
+import { jwtConstant } from './constants';
+import { UserModule } from 'src/user/user.module';
 
 @Module({
   imports: [
@@ -15,7 +17,11 @@ import { JwtStrategy } from './jwt.strategy';
     PassportModule.register({
       defaultStrategy: 'jwt',
     }),
-    JwtModule.register({}),
+    JwtModule.register({
+        secret: jwtConstant.secret,
+        signOptions: {expiresIn: '2d',}
+    }),
+    UserModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, EmailService, Repository, JwtStrategy],

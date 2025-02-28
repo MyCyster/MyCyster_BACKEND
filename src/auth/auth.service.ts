@@ -71,6 +71,7 @@ export class AuthService {
       user: userDetails,
     };
   }
+  
   async hashData(data: string) {
     const salt = 10;
     const hashedData = bcrypt.hashSync(data, salt);
@@ -202,10 +203,10 @@ export class AuthService {
         sub: userId,
         email,
       },
-      {
-        secret: jwtConstant.secret,
-        expiresIn: '2d',
-      },
+      // {
+      //   secret: jwtConstant.secret,
+      //   expiresIn: '2d',
+      // },
     );
     return token;
   }

@@ -1,5 +1,7 @@
 import { DataSource } from 'typeorm';
 import * as dotenv from 'dotenv';
+import { Mood } from './mood-tracker/entities/mood.entity';
+import { Users } from './user/entities/user.entity';
 
 dotenv.config();
 
@@ -10,7 +12,7 @@ export default new DataSource({
   database: process.env.DB_NAME,
   username: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
-  entities: [__dirname + '/entities/*{.ts,.js}'],
+  entities: [Mood, Users],
   migrations: [__dirname + '/migrations/*{.ts,.js}'],
   synchronize: false,
   extra: {
