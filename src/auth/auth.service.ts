@@ -56,6 +56,7 @@ export class AuthService {
       email_verification_code: email_verification_code,
     });
 
+    await this.sendWelcomeEmail(user);
     await this.sendVerificationEmail(user, email_verification_code);
 
     const userDetails = await this.userRepository.findOne({
@@ -71,7 +72,7 @@ export class AuthService {
       user: userDetails,
     };
   }
-  
+
   async hashData(data: string) {
     const salt = 10;
     const hashedData = bcrypt.hashSync(data, salt);
@@ -218,6 +219,17 @@ export class AuthService {
     const isPasswordMatching = bcrypt.compare(password, hashedPassword);
     return isPasswordMatching;
   }
+
+  async sendWelcomeEmail(user) {
+    const subject = `Welcome to MyCyster – Let’s Get Started!`;
+    const name = user.name;
+
+    await this.emailService.sendEmail(user.email, subject, {
+      templateName: 'welcome',
+      context: { name },
+    });
+  }
+
   async sendVerificationEmail(user, code) {
     const subject = 'Verification Code';
 
@@ -230,7 +242,7 @@ export class AuthService {
   }
 
   async sendPasswordResetEmail(user, token) {
-    const subject = 'Password Reset';
+    const subject = `Oops, Let’s Get You Back In`;
     const name = user.name;
     const url = `${process.env.BASEURL}/auth/reset-password/${token}`;
 
