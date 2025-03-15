@@ -1,10 +1,15 @@
-import { MigrationInterface, QueryRunner, Table, TableForeignKey } from 'typeorm';
+import {
+  MigrationInterface,
+  QueryRunner,
+  Table,
+  TableForeignKey,
+} from 'typeorm';
 
 export class CreateMoodTable1739650415584 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     // Create the ENUM type for mood values
     await queryRunner.query(
-      `CREATE TYPE "mood_enum" AS ENUM('happy', 'sad', 'anxious', 'blue', 'calm', 'irritated', 'fatigued', 'moody', 'overwhelmed')`
+      `CREATE TYPE "mood_enum" AS ENUM('happy', 'sad', 'anxious', 'blue', 'calm', 'irritated', 'fatigued', 'moody', 'overwhelmed')`,
     );
 
     await queryRunner.createTable(
@@ -44,7 +49,7 @@ export class CreateMoodTable1739650415584 implements MigrationInterface {
             isNullable: true,
           },
         ],
-      })
+      }),
     );
 
     // Add foreign key constraint
@@ -56,7 +61,7 @@ export class CreateMoodTable1739650415584 implements MigrationInterface {
         referencedTableName: 'users',
         onDelete: 'SET NULL',
         onUpdate: 'CASCADE',
-      })
+      }),
     );
   }
 
