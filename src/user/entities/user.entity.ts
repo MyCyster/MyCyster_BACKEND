@@ -2,8 +2,10 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { MealPlan } from '../../meal-planner/entities/meal-planner.entity';
 
 @Entity()
 export class Users {
@@ -39,4 +41,8 @@ export class Users {
 
   @CreateDateColumn({ name: 'updated_at' })
   updated_at: Date;
+
+    // One-to-Many Relationship with MealPlan
+    @OneToMany(() => MealPlan, (mealPlan) => mealPlan.user, { cascade: true })
+    mealPlans: MealPlan[];
 }

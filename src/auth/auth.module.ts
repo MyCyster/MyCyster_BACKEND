@@ -18,8 +18,8 @@ import { UserModule } from 'src/user/user.module';
       defaultStrategy: 'jwt',
     }),
     JwtModule.register({
-        secret: jwtConstant.secret,
-        signOptions: {expiresIn: '2d',}
+      secret: jwtConstant.secret,
+      signOptions: { expiresIn: '2d' },
     }),
     UserModule,
   ],
