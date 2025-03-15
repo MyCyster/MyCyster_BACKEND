@@ -28,9 +28,9 @@ dotenv.config();
       extra: {
         charset: 'utf8mb4_unicode_ci',
       },
-      // ssl: {
-      //   rejectUnauthorized: false,
-      // },
+      ssl: {
+        rejectUnauthorized: false,
+      },
     }),
     AuthModule,
     UserModule,
