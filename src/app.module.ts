@@ -9,6 +9,7 @@ import appConfig from './config/app.config';
 import * as dotenv from 'dotenv';
 import { MoodTrackerModule } from './mood-tracker/mood-tracker.module';
 import { MealPlannerModule } from './meal-planner/meal-planner.module';
+import { AffirmationModule } from './affirmation/affirmation.module';
 
 dotenv.config();
 
@@ -36,6 +37,7 @@ dotenv.config();
     UserModule,
     MoodTrackerModule,
     MealPlannerModule,
+    AffirmationModule,
   ],
   controllers: [AppController],
   providers: [AppService],

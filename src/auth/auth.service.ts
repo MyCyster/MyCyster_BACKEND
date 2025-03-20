@@ -244,7 +244,7 @@ export class AuthService {
   async sendPasswordResetEmail(user, token) {
     const subject = `Oops, Let’s Get You Back In`;
     const name = user.name;
-    const url = `${process.env.BASEURL}/auth/reset-password/${token}`;
+    const url = `${process.env.FRONTEND_URL}/auth/reset-password/${token}`;
 
     await this.emailService.sendEmail(user.email, subject, {
       templateName: 'reset-password',
