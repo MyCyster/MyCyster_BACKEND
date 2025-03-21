@@ -7,7 +7,7 @@ import {
 } from 'typeorm';
 import { MealPlan } from '../../meal-planner/entities/meal-planner.entity';
 
-@Entity()
+@Entity('users')
 export class Users {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -33,6 +33,9 @@ export class Users {
   @Column({ name: 'reset_password_token', nullable: true })
   reset_password_token?: string;
 
+  @Column({ name: 'image_url', nullable: true })
+  image_url?: string;
+
   @CreateDateColumn({ name: 'reset_password_expiration', nullable: true })
   reset_password_expiration: Date;
 
@@ -42,7 +45,7 @@ export class Users {
   @CreateDateColumn({ name: 'updated_at' })
   updated_at: Date;
 
-    // One-to-Many Relationship with MealPlan
-    @OneToMany(() => MealPlan, (mealPlan) => mealPlan.user, { cascade: true })
-    mealPlans: MealPlan[];
+  // One-to-Many Relationship with MealPlan
+  @OneToMany(() => MealPlan, (mealPlan) => mealPlan.user, { cascade: true })
+  mealPlans: MealPlan[];
 }

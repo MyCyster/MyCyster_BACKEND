@@ -30,7 +30,11 @@ async function bootstrap() {
   );
 
   app.enableCors({
-    origin: ['http://localhost:5000', 'http://localhost:5173', 'https://mycyster-pcos.vercel.app'],
+    origin: [
+      'http://localhost:5000',
+      'http://localhost:5173',
+      'https://mycyster-pcos.vercel.app',
+    ],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     preflightContinue: false,
     optionsSuccessStatus: 204,

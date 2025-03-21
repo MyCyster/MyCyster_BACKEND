@@ -9,6 +9,7 @@ import appConfig from './config/app.config';
 import * as dotenv from 'dotenv';
 import { MoodTrackerModule } from './mood-tracker/mood-tracker.module';
 import { MealPlannerModule } from './meal-planner/meal-planner.module';
+import { ImageModule } from './image.module';
 
 dotenv.config();
 
@@ -28,14 +29,15 @@ dotenv.config();
       extra: {
         charset: 'utf8mb4_unicode_ci',
       },
-      ssl: {
-        rejectUnauthorized: false,
-      },
+      // ssl: {
+      //   rejectUnauthorized: false,
+      // },
     }),
     AuthModule,
     UserModule,
     MoodTrackerModule,
     MealPlannerModule,
+    ImageModule,
   ],
   controllers: [AppController],
   providers: [AppService],
