@@ -11,6 +11,7 @@ import { MoodTrackerModule } from './mood-tracker/mood-tracker.module';
 import { MealPlannerModule } from './meal-planner/meal-planner.module';
 import { ImageModule } from './image.module';
 
+
 dotenv.config();
 
 @Module({
@@ -38,6 +39,7 @@ dotenv.config();
     MoodTrackerModule,
     MealPlannerModule,
     ImageModule,
+
   ],
   controllers: [AppController],
   providers: [AppService],

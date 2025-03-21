@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { Between, In, Repository } from 'typeorm';
 import { Mood } from './entities/mood.entity';
 import { LogMoodDto } from './dto/log-mood.dto';
 import { MoodValue } from 'src/enums/mood.enum';
@@ -86,5 +86,63 @@ export class MoodTrackerService {
       message: 'Mood history fetched successfully',
       data: mood,
     };
+  }
+
+  async getMostFrequentMoodPercentage(userId: string) {
+    try {
+      const now = new Date();
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(now.getDate() - 7);
+      const moodLogs = await this.moodRepository.find({
+        where: {
+          user: { id: userId },
+          is_deleted: false,
+          created_at: Between(sevenDaysAgo, now),
+        },
+      });
+
+      if (moodLogs.length === 0) {
+        return {
+          message: 'No mood data found for the last 7 days.',
+        };
+      }
+
+      const moodCountMap: Record<string, number> = {};
+
+      moodLogs.forEach((log) => {
+        const mood = log.mood;
+
+        if (!moodCountMap[mood]) {
+          moodCountMap[mood] = 1;
+        } else {
+          moodCountMap[mood] += 1;
+        }
+      });
+
+      const totalLogs = moodLogs.length;
+      const moodPercentages: { mood: string; percentage: number }[] = [];
+
+      for (const mood in moodCountMap) {
+        const count = moodCountMap[mood];
+        const percentage = (count / totalLogs) * 100;
+
+        moodPercentages.push({
+          mood,
+          percentage: parseFloat(percentage.toFixed(2)),
+        });
+      }
+
+      const mostFrequentMood = moodPercentages.reduce((prev, current) =>
+        prev.percentage > current.percentage ? prev : current,
+      );
+      this.logger.log('Most frequent mood fetched successfully');
+      return {
+        message: 'Most frequent mood fetched successfully',
+        data: mostFrequentMood,
+      };
+    } catch (error) {
+      this.logger.error(error.message);
+      throw error;
+    }
   }
 }
