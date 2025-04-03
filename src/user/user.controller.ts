@@ -9,16 +9,16 @@ import {
   HttpStatus,
   HttpException,
   NotFoundException,
-
   BadRequestException,
   ConflictException,
+  Logger,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UpdateProfileDto } from './dto/update-user.dto';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
-
+  ApiConflictResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
@@ -26,10 +26,11 @@ import {
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { UpdateImageDto } from './dto/update-user-profile-picture.dto';
+import { AffirmationService } from '../affirmation/affirmation.service';
+import { MoodTrackerService } from '../mood-tracker/mood-tracker.service';
 
 @ApiTags('users')
 @Controller('users')
-
 export class UserController {
   private readonly logger = new Logger(UserController.name);
   constructor(
