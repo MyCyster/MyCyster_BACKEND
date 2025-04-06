@@ -1,5 +1,3 @@
-
-
 import { Injectable } from '@nestjs/common';
 import { v2 as cloudinary } from 'cloudinary';
 import * as dotenv from 'dotenv';
@@ -27,7 +25,10 @@ export class CloudinaryService {
 
       let result;
       if (file.buffer) {
-        result = await cloudinary.uploader.upload(`data:${file.mimetype};base64,${file.buffer.toString('base64')}`, uploadOptions);
+        result = await cloudinary.uploader.upload(
+          `data:${file.mimetype};base64,${file.buffer.toString('base64')}`,
+          uploadOptions,
+        );
       } else if (file.path) {
         result = await cloudinary.uploader.upload(file.path, uploadOptions);
       } else {
@@ -37,8 +38,7 @@ export class CloudinaryService {
       return {
         public_id: result.public_id,
         url: result.url,
-        secure_url: result.secure_url
-
+        secure_url: result.secure_url,
       };
     } catch (error) {
       console.error('Cloudinary upload error:', error);
