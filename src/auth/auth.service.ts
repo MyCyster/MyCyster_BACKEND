@@ -219,7 +219,7 @@ export class AuthService {
         },
         {
           secret: jwtConstant.secret,
-          expiresIn: '7d',
+          expiresIn: '5d',
         },
       ),
     ]);
