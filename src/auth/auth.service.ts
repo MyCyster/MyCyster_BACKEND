@@ -122,7 +122,7 @@ export class AuthService {
       throw new BadRequestException('Invalid email or password');
     }
 
-    const token = await this.getToken(user.id, user.email);
+    const tokens = await this.getTokens(user.id, user.email);
     this.logger.log(`${user.email} logged in successfully`);
     return {
       ...user,
@@ -131,7 +131,7 @@ export class AuthService {
       email_verification_code: undefined,
       reset_password_token: undefined,
       reset_password_expiration: undefined,
-      token,
+      tokens,
     };
   }
 
@@ -198,18 +198,35 @@ export class AuthService {
       email: user.email,
     };
   }
-  async getToken(userId: string, email: string) {
-    const token = await this.jwtService.signAsync(
-      {
-        sub: userId,
-        email,
-      },
-      // {
-      //   secret: jwtConstant.secret,
-      //   expiresIn: '2d',
-      // },
-    );
-    return token;
+
+
+  async getTokens(userId: string, email: string) {
+    const [accessToken, refreshToken] = await Promise.all([
+      this.jwtService.signAsync(
+        {
+          sub: userId,
+          email,
+        },
+        {
+          secret: jwtConstant.secret,
+          expiresIn: '1h',
+        },
+      ),
+      this.jwtService.signAsync(
+        {
+          sub: userId,
+          email,
+        },
+        {
+          secret: jwtConstant.secret,
+          expiresIn: '7d',
+        },
+      ),
+    ]);
+    return {
+      access_token: accessToken,
+      refresh_token: refreshToken,
+    };
   }
 
   private async comparePassword(
