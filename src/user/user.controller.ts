@@ -85,6 +85,7 @@ export class UserController {
     try {
       return this.userService.getUserProfile(req.user.id);
     } catch (error) {
+      console.log('error', error);
       if (error instanceof NotFoundException) {
         throw new HttpException(error.message, HttpStatus.NOT_FOUND);
       } else if (error instanceof BadRequestException) {

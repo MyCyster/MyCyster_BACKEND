@@ -62,29 +62,14 @@ export class MealPlannerController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @Get()
-  @ApiQuery({
-    name: 'mealTypes',
-    required: false,
-    type: [String], // Define the type as an array of strings
-    description:
-      'Filter meal plans by meal types (e.g., Breakfast, Lunch, etc.)',
-  })
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get All Meal Plans' })
   @ApiOkResponse({ description: 'Meal Plans fetched successfully' })
-  async getMealPlans(
-    @Request() req,
-    @Query('mealTypes') mealTypes?: string | string[],
-  ) {
+  async getMealPlans(@Request() req) {
     try {
       const user = req.user.id;
-      const mealTypesArray = Array.isArray(mealTypes)
-        ? mealTypes
-        : mealTypes
-          ? mealTypes.split(',')
-          : [];
 
-      return this.mealPlannerService.getMealPlans(user, mealTypesArray);
+      return this.mealPlannerService.getMealPlans(user);
     } catch (error) {
       console.log('error', error);
       if (error instanceof ConflictException) {
@@ -99,4 +84,31 @@ export class MealPlannerController {
       }
     }
   }
+
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @Get('nutrient-summary')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get Nutrient Summary' })
+  @ApiOkResponse({ description: 'Nutrient Summary fetched successfully' })
+  async getNutrientSummary(@Request() req) {
+    try {
+      const user = req.user.id;
+
+      return this.mealPlannerService.getNutrientSummary(user);
+    } catch (error) {
+      console.log('error', error);
+      if (error instanceof ConflictException) {
+        throw new HttpException(error.message, HttpStatus.CONFLICT);
+      } else if (error instanceof BadRequestException) {
+        throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      } else {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
 }

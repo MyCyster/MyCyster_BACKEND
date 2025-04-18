@@ -1,18 +1,11 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import {
-  IsArray,
-  IsInt,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-} from 'class-validator';
+import { IsInt, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreateMealPlanDto {
-  @ApiProperty({ description: 'Meal Type', example: ['Breakfast'] })
-  @IsArray()
+  @ApiProperty({ description: 'Meal Type', example: 'Breakfast' })
   @IsString({ each: true })
   @IsNotEmpty()
-  meal_types: string[]; // Now allows multiple meal types
+  meal_type: string;
 
   @ApiProperty({ description: 'Day Count', example: 1 })
   @IsNotEmpty()

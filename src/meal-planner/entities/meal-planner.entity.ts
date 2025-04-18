@@ -19,8 +19,8 @@ export class MealPlan {
   @JoinColumn({ name: 'user_id' }) // This matches the column name in the migration
   user: Users;
 
-  @Column({ type: 'text', array: true })
-  meal_types: string[]; // Breakfast, Lunch, Dinner, Snack
+  @Column({ type: 'text'})
+  meal_type: string; // Breakfast, Lunch, Dinner, Snack
 
   @Column({ type: 'int' })
   days_count: number;
