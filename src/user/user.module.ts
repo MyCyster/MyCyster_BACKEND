@@ -9,6 +9,7 @@ import { MoodTrackerModule } from 'src/mood-tracker/mood-tracker.module';
 import { AffirmationModule } from 'src/affirmation/affirmation.module';
 import { Mood } from 'src/mood-tracker/entities/mood.entity';
 import { Affirmation } from 'src/affirmation/entities/affirmation.entity';
+import { MealPlannerModule } from 'src/meal-planner/meal-planner.module';
 
 @Module({
   imports: [
@@ -17,6 +18,8 @@ import { Affirmation } from 'src/affirmation/entities/affirmation.entity';
     TypeOrmModule.forFeature([Affirmation]),
     forwardRef(() => MoodTrackerModule),
     forwardRef(() => AffirmationModule),
+    MealPlannerModule,
+    AffirmationModule,
   ],
   controllers: [UserController],
   providers: [UserService, MoodTrackerService, AffirmationService],

@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Between, In, Repository } from 'typeorm';
+import { Between, Repository } from 'typeorm';
 import { Mood } from './entities/mood.entity';
 import { LogMoodDto } from './dto/log-mood.dto';
 import { MoodValue } from 'src/enums/mood.enum';
