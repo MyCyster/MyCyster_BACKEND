@@ -9,6 +9,8 @@ import { Between, Repository } from 'typeorm';
 import { Mood } from './entities/mood.entity';
 import { LogMoodDto } from './dto/log-mood.dto';
 import { MoodValue } from 'src/enums/mood.enum';
+import * as dayjs from 'dayjs';
+import { Parser } from 'json2csv';
 
 @Injectable()
 export class MoodTrackerService {
@@ -144,5 +146,93 @@ export class MoodTrackerService {
       this.logger.error(error.message);
       throw error;
     }
+  }
+
+  async downloadMoodHistory(
+    userId: string,
+    filters: { startDate?: string; endDate?: string },
+  ) {
+    const where: any = {
+      user: { id: userId },
+      is_deleted: false,
+    };
+
+    if (filters.startDate && filters.endDate) {
+      const start = dayjs(filters.startDate);
+      const end = dayjs(filters.endDate);
+
+      if (!start.isValid() || !end.isValid()) {
+        this.logger.error('Invalid date format.');
+        throw new BadRequestException('Invalid date format.');
+      }
+
+      if (end.isBefore(start)) {
+        this.logger.error('End date must be after start date.');
+        throw new BadRequestException('End date must be after start date.');
+      }
+
+      where.created_at = Between(start.toDate(), end.toDate());
+    } else if (filters.startDate && !filters.endDate) {
+      const start = dayjs(filters.startDate);
+      if (!start.isValid()) {
+        this.logger.error('Invalid start date');
+        throw new BadRequestException('Invalid start date.');
+      }
+
+      const now = dayjs();
+      where.created_at = Between(start.toDate(), now.toDate());
+    }
+
+    const moods = await this.moodRepository.find({
+      where,
+      relations: ['user'],
+      order: { created_at: 'DESC' },
+    });
+
+    if (moods.length === 0) {
+      this.logger.log('No mood data found');
+      return {
+        message: 'No mood data found',
+      };
+    }
+
+    const formatted = moods.map((mood) => ({
+      ID: mood.id,
+      Mood: mood.mood,
+      Description: mood.description,
+      Date: dayjs(mood.created_at).format('YYYY-MM-DD HH:mm:ss'),
+    }));
+
+    const parser = new Parser();
+    const csv = parser.parse(formatted);
+    this.logger.log('Mood history Csv generated');
+    return Buffer.from(csv);
+  }
+
+  async getMoodStats(userId: string) {
+    const moodCounts = Object.values(MoodValue).reduce(
+      (acc, mood) => {
+        acc[mood] = 0;
+        return acc;
+      },
+      {} as Record<MoodValue, number>,
+    );
+
+    const moods = await this.moodRepository.find({
+      where: {
+        user: { id: userId },
+        is_deleted: false,
+      },
+      select: ['mood'],
+    });
+
+    for (const moodEntry of moods) {
+      moodCounts[moodEntry.mood]++;
+    }
+
+    return {
+      message: 'Mood stats fetched succesfully',
+      data: moodCounts,
+    };
   }
 }
