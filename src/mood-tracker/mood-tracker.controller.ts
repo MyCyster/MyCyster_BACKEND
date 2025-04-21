@@ -10,6 +10,7 @@ import {
   BadRequestException,
   UseGuards,
   Request,
+  Res,
   Get,
   Query,
   Param,
@@ -27,7 +28,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-
+import { Response } from 'express';
 import { MoodTrackerService } from './mood-tracker.service';
 import { LogMoodDto } from './dto/log-mood.dto';
 import { MoodValue } from 'src/enums/mood.enum';
@@ -141,6 +142,93 @@ export class MoodTrackerController {
   async getMoodHistoryById(@Param('moodId') moodId: string) {
     try {
       return this.moodTrackerService.getMoodHistoryById(moodId);
+    } catch (error) {
+      console.log('error', error);
+      this.logger.error(error.message);
+      if (error instanceof ConflictException) {
+        throw new HttpException(error.message, HttpStatus.CONFLICT);
+      } else if (error instanceof NotFoundException) {
+        throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+      } else if (error instanceof BadRequestException) {
+        throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      } else {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @Get('download')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Download mood history' })
+  @ApiOkResponse({ description: 'Mood history Downloaded successfully' })
+  @ApiBadRequestResponse({ description: 'Invalid date format' })
+  @ApiBadRequestResponse({ description: 'End date must be after start date.' })
+  @ApiQuery({
+    name: 'startDate',
+    required: false,
+    type: String,
+    description: 'Start date (YYYY-MM-DD)',
+    example: '2022-01-01',
+  })
+  @ApiQuery({
+    name: 'endDate',
+    required: false,
+    type: String,
+    description: 'End date (YYYY-MM-DD)',
+    example: '2022-12-31',
+  })
+  async downloadMood(
+    @Request() req,
+    @Res() res: Response,
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+  ) {
+    try {
+      const userId = req.user.id;
+      const fileBuffer = await this.moodTrackerService.downloadMoodHistory(
+        userId,
+        { startDate, endDate },
+      );
+
+      res.set({
+        'Content-Disposition': 'attachment; filename="mood-history.csv"',
+        'Content-Type': 'text/csv',
+      });
+      res.send(fileBuffer);
+    } catch (error) {
+      console.log('error', error);
+      this.logger.error(error.message);
+      if (error instanceof ConflictException) {
+        throw new HttpException(error.message, HttpStatus.CONFLICT);
+      } else if (error instanceof NotFoundException) {
+        throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+      } else if (error instanceof BadRequestException) {
+        throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      } else {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @Get('stats')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get mood stats' })
+  @ApiOkResponse({ description: 'Mood stats fetched succesfully' })
+  @ApiBadRequestResponse({ description: 'Bad request' })
+  async getMoodStats(@Request() req) {
+    try {
+      const userId = req.user.id;
+      return this.moodTrackerService.getMoodStats(userId);
     } catch (error) {
       console.log('error', error);
       this.logger.error(error.message);
