@@ -34,7 +34,7 @@ async function bootstrap() {
       'http://localhost:5000',
       'http://localhost:5173',
       'https://mycyster-pcos.vercel.app',
-      'https://mycyster-development.vercel.app/',
+      'https://mycyster-development.vercel.app',
     ],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     preflightContinue: false,
